@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whu.mapper.ICategoryMapper">
+    <resultMap id="categoryBean" type="com.whu.pojo.Category">
+        <id column="cid" property="id"></id>
+        <result column="name" property="name"></result>
+        <collection property="books" ofType="com.whu.pojo.Book">
+            <id column="bid" property="id"></id>
+            <result column="bookname" property="bookName"></result>
+            <result column="category_id" property="category_id"></result>
+            <result column="author" property="author"></result>
+            <result column="press" property="press"></result>
+            <result column="price" property="price"></result>
+            <result column="description" property="description"></result>
+            <result column="img" property="img"></result>
+        </collection>
+    </resultMap>
+    <select id="getByCategory" resultMap="categoryBean" parameterType="_int">
+        select  c.id 'cid',c.name,b.id 'bid',b.bookname,b.category_id,b.author,b.press,b.price,b.description,b.img from category c left join book b on c.id=b.category_id where b.category_id=#{id}
+    </select>
+</mapper>

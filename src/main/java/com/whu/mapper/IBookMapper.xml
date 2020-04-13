@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whu.mapper.IBookMapper">
+    <insert id="add" parameterType="com.whu.pojo.Book">
+       insert into book(bookname,category_id,author,press,price,description,img)
+       values(#{bookName},#{category_id},#{author},#{press},#{price},#{description},#{img})
+    </insert>
+    <select id="getById" parameterType="int" resultType="com.whu.pojo.Book">
+        select * from book where id=#{id}
+    </select>
+    <update id="update" parameterType="com.whu.pojo.Book">
+        update book set bookname=#{bookName},category_id=#{category_id},author=#{author},press=#{press},
+        price=#{price},description=#{description},img=#{img} where  id=#{id}
+    </update>
+    <delete id="delete" parameterType="int">
+        delete from book where  id=#{id}
+    </delete>
+</mapper>

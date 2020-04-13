@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--加载配置文件-->
+    <context:property-placeholder location="classpath:database.properties"></context:property-placeholder>
+    <!--配置数据源-->
+    <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+    <!--sqlSession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="datasource"></property>
+        <property name="mapperLocations" value="classpath:com/whu/mapper/*.xml"></property>
+        <property name="typeAliasesPackage" value="com.whu.pojo"></property>
+    </bean>
+    <!--配置mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.whu.mapper"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSession"></property>
+    </bean>
+    <!--配置Service层-->
+    <!--BookService-->
+    <bean id="bookService" class="com.whu.service.impl.BookService">
+        <property name="bookMapper" ref="IBookMapper"></property>
+        <property name="categoryMapper" ref="ICategoryMapper"></property>
+    </bean>
+    <!--UserService-->
+    <bean id="userService" class="com.whu.service.impl.UserService">
+        <property name="userMapper" ref="IUserMapper"></property>
+        <property name="cartMapper" ref="ICartMapper"></property>
+    </bean>
+
+    <!--事务管理--> <!--后面还要补充别的sql语句的事务管理-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="add*" read-only="false" propagation="REQUIRED"/>
+            <tx:method name="check*" read-only="false" propagation="REQUIRED"></tx:method>
+            <tx:method name="delete*" read-only="false" propagation="REQUIRED"></tx:method>
+            <tx:method name="update*" read-only="false" propagation="REQUIRED"></tx:method>
+            <tx:method name="get*" read-only="true" propagation="SUPPORTS"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pt" expression="execution(* com.whu.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pt"></aop:advisor>
+    </aop:config>
+</beans>
